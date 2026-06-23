@@ -9,11 +9,12 @@ public class TimerManager : MonoBehaviour
     public float startTime = 60f;
 
     private float currentTime;
-    private bool isRunning = true;
+    private bool isRunning = false;
 
     void Start()
     {
         currentTime = startTime;
+        UpdateTimerUI();
     }
 
     void Update()
@@ -44,6 +45,11 @@ public class TimerManager : MonoBehaviour
             minutes,
             seconds
         );
+    }
+
+    public void StartTimer()
+    {
+        isRunning = true;
     }
 
     public void StopTimer()
