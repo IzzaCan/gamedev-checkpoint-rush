@@ -25,6 +25,9 @@ public class SimpleCarController : MonoBehaviour
     public float nitroDuration = 2f;
     public float nitroCooldown = 3f;
 
+    [Header("Mobile Joystick")]
+    [SerializeField] private FixedJoystick joystick;
+
     private float moveInput;
     private float steerInput;
     private bool isBraking;
@@ -35,29 +38,39 @@ public class SimpleCarController : MonoBehaviour
 
     void Update()
     {
-        // Reset input
-        moveInput = 0f;
-        steerInput = 0f;
+        // ===== KEYBOARD =====
+        float keyboardMove = 0f;
+        float keyboardSteer = 0f;
 
-        // Movement
-        if (Keyboard.current.wKey.isPressed)
-            moveInput = 1f;
+        if (Keyboard.current != null)
+        {
+            if (Keyboard.current.wKey.isPressed)
+                keyboardMove = 1f;
+            else if (Keyboard.current.sKey.isPressed)
+                keyboardMove = -0.5f;
 
-        if (Keyboard.current.sKey.isPressed)
-            moveInput = -0.5f;
+            if (Keyboard.current.aKey.isPressed)
+                keyboardSteer = -1f;
+            else if (Keyboard.current.dKey.isPressed)
+                keyboardSteer = 1f;
 
-        // Steering
-        if (Keyboard.current.aKey.isPressed)
-            steerInput = -1f;
+            isBraking = Keyboard.current.spaceKey.isPressed;
+            isNitroActive = Keyboard.current.leftShiftKey.isPressed;
+        }
 
-        if (Keyboard.current.dKey.isPressed)
-            steerInput = 1f;
+        // ===== JOYSTICK =====
+        float joystickMove = 0f;
+        float joystickSteer = 0f;
 
-        // Brake
-        isBraking = Keyboard.current.spaceKey.isPressed;
+        if (joystick != null)
+        {
+            joystickMove = joystick.Vertical;
+            joystickSteer = joystick.Horizontal;
+        }
 
-        // Nitro input (Shift)
-        isNitroActive = Keyboard.current.leftShiftKey.isPressed;
+        // ===== INPUT PRIORITY =====
+        moveInput = Mathf.Abs(joystickMove) > 0.05f ? joystickMove : keyboardMove;
+        steerInput = Mathf.Abs(joystickSteer) > 0.05f ? joystickSteer : keyboardSteer;
     }
 
     void FixedUpdate()
