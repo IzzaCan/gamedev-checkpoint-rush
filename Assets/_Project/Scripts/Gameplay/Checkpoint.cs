@@ -2,21 +2,31 @@ using UnityEngine;
 
 public class Checkpoint : MonoBehaviour
 {
-    public CheckpointManager manager;
-
+    private CheckpointManager manager;
     private bool triggered = false;
+
+    private void Awake()
+    {
+        manager = FindFirstObjectByType<CheckpointManager>();
+
+        if (manager == null)
+        {
+            Debug.LogError("CheckpointManager not found in scene!");
+        }
+    }
 
     private void OnTriggerEnter(Collider other)
     {
-        if (triggered) return;
+        if (triggered)
+            return;
 
-        if (other.transform.root.CompareTag("Player"))
-        {
-            triggered = true;
-            manager.ReachCheckpoint();
+        if (!other.transform.root.CompareTag("Player"))
+            return;
 
-            Debug.Log("Checkpoint: " + gameObject.name + 
-              " | Total = " + manager.currentCheckpoint);
-        }
+        triggered = true;
+
+        manager.ReachCheckpoint();
+
+        Debug.Log($"Checkpoint Passed: {gameObject.name}");
     }
 }

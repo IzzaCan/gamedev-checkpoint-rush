@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 3756142865909741593}
   m_Layer: 0
-  m_Name: Checkpoint
+  m_Name: Race Finish
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -129,7 +129,7 @@ GameObject:
   - component: {fileID: 4834246592844076849}
   - component: {fileID: 107078391742118527}
   m_Layer: 0
-  m_Name: CPText
+  m_Name: FinishText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -182,7 +182,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Checkpoint
+  m_text: Finish
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -266,7 +266,7 @@ GameObject:
   - component: {fileID: 1294474019323017000}
   - component: {fileID: 3254465907938411960}
   - component: {fileID: 4482180107417274070}
-  - component: {fileID: 3614005173617610397}
+  - component: {fileID: 7900723989157761698}
   m_Layer: 0
   m_Name: Trigger
   m_TagString: Untagged
@@ -322,7 +322,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: de1a9a171332d8a469d2ea4018c227b7, type: 2}
+  - {fileID: 2100000, guid: 45d122fa948cee9488b6c0e47cf59faa, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -367,7 +367,7 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1, y: 1, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &3614005173617610397
+--- !u!114 &7900723989157761698
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -376,6 +376,6 @@ MonoBehaviour:
   m_GameObject: {fileID: 8508940721273693062}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6d4606ce5d2ed554bb4a2be7d8b261de, type: 3}
+  m_Script: {fileID: 11500000, guid: d43c0392132cd5c4f9b78a439611268e, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::Checkpoint
+  m_EditorClassIdentifier: Assembly-CSharp::FinishLine

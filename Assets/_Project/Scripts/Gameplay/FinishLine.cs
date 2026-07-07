@@ -2,42 +2,44 @@ using UnityEngine;
 
 public class FinishLine : MonoBehaviour
 {
-    public TimerManager timerManager;
-    public CheckpointManager checkpointManager;
+    private TimerManager timerManager;
+    private CheckpointManager checkpointManager;
+    private UIManager uiManager;
+
+    private void Awake()
+    {
+        timerManager = FindFirstObjectByType<TimerManager>();
+        checkpointManager = FindFirstObjectByType<CheckpointManager>();
+        uiManager = FindFirstObjectByType<UIManager>();
+
+        if (timerManager == null)
+            Debug.LogError("TimerManager not found in scene!");
+
+        if (checkpointManager == null)
+            Debug.LogError("CheckpointManager not found in scene!");
+
+        if (uiManager == null)
+            Debug.LogError("UIManager not found in scene!");
+    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (!other.transform.root.CompareTag("Player"))
             return;
 
-        // Safety check (hindari NullReference)
-        if (checkpointManager == null)
-        {
-            Debug.LogError("CheckpointManager NOT ASSIGNED!");
+        if (timerManager == null || checkpointManager == null || uiManager == null)
             return;
-        }
 
-        if (timerManager == null)
-        {
-            Debug.LogError("TimerManager NOT ASSIGNED!");
-            return;
-        }
-
-        // Debug info
-        Debug.Log("canFinish = " + checkpointManager.canFinish);
-        Debug.Log("currentCheckpoint = " + checkpointManager.currentCheckpoint);
-        Debug.Log("totalCheckpoints = " + checkpointManager.totalCheckpoints);
-
-        // Validasi checkpoint
-        if (!checkpointManager.canFinish)
+        if (!checkpointManager.CanFinish)
         {
             Debug.Log("You must complete all checkpoints!");
             return;
         }
 
-        // Finish success
+        timerManager.StopTimer();
+
         Debug.Log("LEVEL COMPLETE!");
 
-        timerManager.StopTimer();
+        uiManager.ShowLevelComplete();
     }
 }
