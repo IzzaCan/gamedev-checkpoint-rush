@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class FinishLine : MonoBehaviour
 {
@@ -37,6 +38,9 @@ public class FinishLine : MonoBehaviour
         }
 
         timerManager.StopTimer();
+
+        int currentLevel = SceneManager.GetActiveScene().buildIndex;
+        LevelManager.CompleteLevel(currentLevel);
 
         Debug.Log("LEVEL COMPLETE!");
 

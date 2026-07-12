@@ -8,6 +8,10 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject pausePanel;
     [SerializeField] private GameObject gameOverPanel;
     [SerializeField] private GameObject levelCompletePanel;
+    [SerializeField] private GameObject settingsPanel;
+
+    [Header("HUD")]
+    [SerializeField] private GameObject pauseButton;
 
     private TimerManager timerManager;
 
@@ -68,6 +72,8 @@ public class UIManager : MonoBehaviour
         if (pausePanel != null)
             pausePanel.SetActive(true);
 
+        pauseButton.SetActive(false);
+
         Time.timeScale = 0f;
     }
 
@@ -80,6 +86,8 @@ public class UIManager : MonoBehaviour
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
+
+        pauseButton.SetActive(true);
 
         Time.timeScale = 1f;
     }
@@ -140,6 +148,18 @@ public class UIManager : MonoBehaviour
             SceneManager.LoadScene(nextScene);
         else
             SceneManager.LoadScene("MainMenu");
+    }
+
+    public void OpenSettings()
+    {
+        pausePanel.SetActive(false);
+        settingsPanel.SetActive(true);
+    }
+
+    public void CloseSettings()
+    {
+        settingsPanel.SetActive(false);
+        pausePanel.SetActive(true);
     }
 
     //==================================================
