@@ -23,9 +23,7 @@ public class UIManager : MonoBehaviour
         timerManager = FindFirstObjectByType<TimerManager>();
 
         if (timerManager == null)
-        {
             Debug.LogError("TimerManager not found in scene!");
-        }
     }
 
     private void Start()
@@ -37,6 +35,9 @@ public class UIManager : MonoBehaviour
             tutorialPanel.SetActive(true);
             Time.timeScale = 0f;
         }
+
+        // Engine tidak menyala selama tutorial
+        EngineAudio.Instance?.StopEngine();
     }
 
     //==================================================
@@ -56,6 +57,9 @@ public class UIManager : MonoBehaviour
         Time.timeScale = 1f;
 
         timerManager?.StartTimer();
+
+        // Mulai suara mesin
+        EngineAudio.Instance?.StartEngine();
     }
 
     //==================================================
@@ -69,12 +73,12 @@ public class UIManager : MonoBehaviour
 
         isPaused = true;
 
-        if (pausePanel != null)
-            pausePanel.SetActive(true);
-
-        pauseButton.SetActive(false);
+        pausePanel?.SetActive(true);
+        pauseButton?.SetActive(false);
 
         Time.timeScale = 0f;
+
+        EngineAudio.Instance?.PauseEngine();
     }
 
     public void ResumeGame()
@@ -84,12 +88,12 @@ public class UIManager : MonoBehaviour
 
         isPaused = false;
 
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        pauseButton.SetActive(true);
+        pausePanel?.SetActive(false);
+        pauseButton?.SetActive(true);
 
         Time.timeScale = 1f;
+
+        EngineAudio.Instance?.ResumeEngine();
     }
 
     //==================================================
@@ -102,8 +106,9 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(true);
+        EngineAudio.Instance?.StopEngine();
+
+        gameOverPanel?.SetActive(true);
     }
 
     //==================================================
@@ -116,8 +121,9 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        if (levelCompletePanel != null)
-            levelCompletePanel.SetActive(true);
+        EngineAudio.Instance?.StopEngine();
+
+        levelCompletePanel?.SetActive(true);
     }
 
     //==================================================
@@ -126,6 +132,8 @@ public class UIManager : MonoBehaviour
 
     public void RestartLevel()
     {
+        EngineAudio.Instance?.StopEngine();
+
         Time.timeScale = 1f;
 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
@@ -133,6 +141,8 @@ public class UIManager : MonoBehaviour
 
     public void Home()
     {
+        EngineAudio.Instance?.StopEngine();
+
         Time.timeScale = 1f;
 
         SceneManager.LoadScene("MainMenu");
@@ -140,6 +150,8 @@ public class UIManager : MonoBehaviour
 
     public void NextLevel()
     {
+        EngineAudio.Instance?.StopEngine();
+
         Time.timeScale = 1f;
 
         int nextScene = SceneManager.GetActiveScene().buildIndex + 1;
@@ -150,16 +162,20 @@ public class UIManager : MonoBehaviour
             SceneManager.LoadScene("MainMenu");
     }
 
+    //==================================================
+    // Settings
+    //==================================================
+
     public void OpenSettings()
     {
-        pausePanel.SetActive(false);
-        settingsPanel.SetActive(true);
+        pausePanel?.SetActive(false);
+        settingsPanel?.SetActive(true);
     }
 
     public void CloseSettings()
     {
-        settingsPanel.SetActive(false);
-        pausePanel.SetActive(true);
+        settingsPanel?.SetActive(false);
+        pausePanel?.SetActive(true);
     }
 
     //==================================================
@@ -168,16 +184,10 @@ public class UIManager : MonoBehaviour
 
     private void HideAllPanels()
     {
-        if (tutorialPanel != null)
-            tutorialPanel.SetActive(false);
-
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        if (gameOverPanel != null)
-            gameOverPanel.SetActive(false);
-
-        if (levelCompletePanel != null)
-            levelCompletePanel.SetActive(false);
+        tutorialPanel?.SetActive(false);
+        pausePanel?.SetActive(false);
+        gameOverPanel?.SetActive(false);
+        levelCompletePanel?.SetActive(false);
+        settingsPanel?.SetActive(false);
     }
 }

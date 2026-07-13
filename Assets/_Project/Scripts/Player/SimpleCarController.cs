@@ -1,142 +1,166 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 
+[RequireComponent(typeof(Rigidbody))]
 public class SimpleCarController : MonoBehaviour
 {
     [Header("Wheel Colliders")]
-    public WheelCollider frontLeftCollider;
-    public WheelCollider frontRightCollider;
-    public WheelCollider rearLeftCollider;
-    public WheelCollider rearRightCollider;
+    [SerializeField] private WheelCollider frontLeftCollider;
+    [SerializeField] private WheelCollider frontRightCollider;
+    [SerializeField] private WheelCollider rearLeftCollider;
+    [SerializeField] private WheelCollider rearRightCollider;
 
     [Header("Wheel Meshes")]
-    public Transform frontLeftMesh;
-    public Transform frontRightMesh;
-    public Transform rearLeftMesh;
-    public Transform rearRightMesh;
+    [SerializeField] private Transform frontLeftMesh;
+    [SerializeField] private Transform frontRightMesh;
+    [SerializeField] private Transform rearLeftMesh;
+    [SerializeField] private Transform rearRightMesh;
 
     [Header("Car Settings")]
-    public float motorForce = 1000f;
-    public float steeringAngle = 20f;
-    public float brakeForce = 3000f;
+    [SerializeField] private float motorForce = 1000f;
+    [SerializeField] private float steeringAngle = 20f;
+    [SerializeField] private float brakeForce = 3000f;
 
-    [Header("Nitro Settings")]
-    public float nitroMultiplier = 2f;
-    public float nitroDuration = 2f;
-    public float nitroCooldown = 3f;
+    [Header("Reverse")]
+    [Tooltip("Reverse speed multiplier relative to motor force.")]
+    [SerializeField, Range(-1f, 0f)]
+    private float reverseMultiplier = -0.5f;
 
-    [Header("Mobile Joystick")]
-    [SerializeField] private FixedJoystick joystick;
+    [Tooltip("Speed threshold before switching from brake to reverse.")]
+    [SerializeField]
+    private float reverseThreshold = 0.5f;
 
     private float moveInput;
     private float steerInput;
-    private bool isBraking;
+    private bool isBrakePressed;
 
-    private bool isNitroActive;
-    private float nitroTimer;
-    private float cooldownTimer;
+    private Rigidbody carRb;
 
-    void Update()
+    private void Awake()
     {
-        // ===== KEYBOARD =====
-        float keyboardMove = 0f;
-        float keyboardSteer = 0f;
-
-        if (Keyboard.current != null)
-        {
-            if (Keyboard.current.wKey.isPressed)
-                keyboardMove = 1f;
-            else if (Keyboard.current.sKey.isPressed)
-                keyboardMove = -0.5f;
-
-            if (Keyboard.current.aKey.isPressed)
-                keyboardSteer = -1f;
-            else if (Keyboard.current.dKey.isPressed)
-                keyboardSteer = 1f;
-
-            isBraking = Keyboard.current.spaceKey.isPressed;
-            isNitroActive = Keyboard.current.leftShiftKey.isPressed;
-        }
-
-        // ===== JOYSTICK =====
-        float joystickMove = 0f;
-        float joystickSteer = 0f;
-
-        if (joystick != null)
-        {
-            joystickMove = joystick.Vertical;
-            joystickSteer = joystick.Horizontal;
-        }
-
-        // ===== INPUT PRIORITY =====
-        moveInput = Mathf.Abs(joystickMove) > 0.05f ? joystickMove : keyboardMove;
-        steerInput = Mathf.Abs(joystickSteer) > 0.05f ? joystickSteer : keyboardSteer;
+        carRb = GetComponent<Rigidbody>();
     }
 
-    void FixedUpdate()
+    private void Update()
+    {
+        ReadInput();
+        UpdateWheelVisuals();
+    }
+
+    private void FixedUpdate()
     {
         HandleMotor();
         HandleSteering();
         HandleBraking();
-        UpdateAllWheels();
-        HandleNitro();
     }
 
-    void HandleMotor()
-    {
-        float finalMotorForce = motorForce;
+    #region Input
 
-        if (isNitroActive && cooldownTimer <= 0)
+    private void ReadInput()
+    {
+        moveInput = 0f;
+        steerInput = 0f;
+        isBrakePressed = false;
+
+        // Unity 6
+        float forwardSpeed = Vector3.Dot(transform.forward, carRb.linearVelocity);
+
+        //-----------------------
+        // Keyboard
+        //-----------------------
+        if (Keyboard.current != null)
         {
-            finalMotorForce *= nitroMultiplier;
-        }
-
-        rearLeftCollider.motorTorque = moveInput * finalMotorForce;
-        rearRightCollider.motorTorque = moveInput * finalMotorForce;
-    }
-
-    void HandleSteering()
-    {
-        float currentSteerAngle = steerInput * steeringAngle;
-
-        frontLeftCollider.steerAngle = currentSteerAngle;
-        frontRightCollider.steerAngle = currentSteerAngle;
-    }
-
-    void HandleBraking()
-    {
-        float currentBrakeForce = isBraking ? brakeForce : 0f;
-
-        frontLeftCollider.brakeTorque = currentBrakeForce;
-        frontRightCollider.brakeTorque = currentBrakeForce;
-        rearLeftCollider.brakeTorque = currentBrakeForce;
-        rearRightCollider.brakeTorque = currentBrakeForce;
-    }
-
-    void HandleNitro()
-    {
-        if (cooldownTimer > 0)
-        {
-            cooldownTimer -= Time.fixedDeltaTime;
-        }
-
-        if (isNitroActive && cooldownTimer <= 0)
-        {
-            nitroTimer += Time.fixedDeltaTime;
-
-            if (nitroTimer >= nitroDuration)
+            if (Keyboard.current.wKey.isPressed)
             {
-                nitroTimer = 0f;
-                cooldownTimer = nitroCooldown;
+                moveInput = 1f;
+            }
+            else if (Keyboard.current.sKey.isPressed)
+            {
+                if (forwardSpeed > reverseThreshold)
+                {
+                    isBrakePressed = true;
+                }
+                else
+                {
+                    moveInput = reverseMultiplier;
+                }
+            }
+
+            if (Keyboard.current.aKey.isPressed)
+                steerInput = -1f;
+            else if (Keyboard.current.dKey.isPressed)
+                steerInput = 1f;
+
+            // Space = Hand Brake
+            if (Keyboard.current.spaceKey.isPressed)
+            {
+                isBrakePressed = true;
             }
         }
-        else
+
+        //-----------------------
+        // Mobile
+        //-----------------------
+        if (MobileInputManager.Instance != null)
         {
-            nitroTimer = 0f;
+            if (MobileInputManager.Instance.GasPressed)
+            {
+                moveInput = 1f;
+            }
+            else if (MobileInputManager.Instance.BrakePressed)
+            {
+                if (forwardSpeed > reverseThreshold)
+                {
+                    isBrakePressed = true;
+                }
+                else
+                {
+                    moveInput = reverseMultiplier;
+                }
+            }
+
+            if (MobileInputManager.Instance.LeftPressed)
+                steerInput = -1f;
+            else if (MobileInputManager.Instance.RightPressed)
+                steerInput = 1f;
         }
     }
 
-    void UpdateAllWheels()
+    #endregion
+
+    #region Car Movement
+
+    private void HandleMotor()
+    {
+        float motorTorque = moveInput * motorForce;
+
+        rearLeftCollider.motorTorque = motorTorque;
+        rearRightCollider.motorTorque = motorTorque;
+    }
+
+    private void HandleSteering()
+    {
+        float steer = steerInput * steeringAngle;
+
+        frontLeftCollider.steerAngle = steer;
+        frontRightCollider.steerAngle = steer;
+    }
+
+    private void HandleBraking()
+    {
+        float brakeTorque = isBrakePressed ? brakeForce : 0f;
+
+        frontLeftCollider.brakeTorque = brakeTorque;
+        frontRightCollider.brakeTorque = brakeTorque;
+        rearLeftCollider.brakeTorque = brakeTorque;
+        rearRightCollider.brakeTorque = brakeTorque;
+    }
+
+    #endregion
+
+    #region Wheel Visual
+
+    private void UpdateWheelVisuals()
     {
         UpdateWheel(frontLeftCollider, frontLeftMesh);
         UpdateWheel(frontRightCollider, frontRightMesh);
@@ -144,14 +168,16 @@ public class SimpleCarController : MonoBehaviour
         UpdateWheel(rearRightCollider, rearRightMesh);
     }
 
-    void UpdateWheel(WheelCollider collider, Transform wheelMesh)
+    private void UpdateWheel(WheelCollider wheelCollider, Transform wheelMesh)
     {
-        Vector3 position;
-        Quaternion rotation;
+        if (wheelMesh == null)
+            return;
 
-        collider.GetWorldPose(out position, out rotation);
+        wheelCollider.GetWorldPose(out Vector3 position, out Quaternion rotation);
 
         wheelMesh.position = position;
         wheelMesh.rotation = rotation;
     }
+
+    #endregion
 }

@@ -15,8 +15,8 @@ public class SettingsUI : MonoBehaviour
             return;
         }
 
-        musicSlider.value = AudioManager.Instance.GetMusicVolume();
-        sfxSlider.value = AudioManager.Instance.GetSfxVolume();
+        musicSlider.SetValueWithoutNotify(AudioManager.Instance.MusicVolume);
+        sfxSlider.SetValueWithoutNotify(AudioManager.Instance.SfxVolume);
 
         musicSlider.onValueChanged.AddListener(OnMusicVolumeChanged);
         sfxSlider.onValueChanged.AddListener(OnSfxVolumeChanged);

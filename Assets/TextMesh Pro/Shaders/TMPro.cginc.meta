@@ -7,3 +7,10 @@ ShaderImporter:
   userData: Version 2.0
   assetBundleName: 
   assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 359664
+  packageName: Simple Car Racing UI Logic (2D & 3D)
+  packageVersion: 1.0
+  assetPath: Assets/TextMesh Pro/Shaders/TMPro.cginc
+  uploadId: 878144

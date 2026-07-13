@@ -1,8 +1,11 @@
+using System;
 using UnityEngine;
 
 public class AudioManager : MonoBehaviour
 {
     public static AudioManager Instance { get; private set; }
+
+    public static event Action<float> OnSfxVolumeChanged;
 
     private const string MusicVolumeKey = "MusicVolume";
     private const string SfxVolumeKey = "SfxVolume";
@@ -19,7 +22,6 @@ public class AudioManager : MonoBehaviour
 
     private void Awake()
     {
-        // Singleton
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -44,6 +46,7 @@ public class AudioManager : MonoBehaviour
             return;
 
         musicSource.clip = backgroundMusic;
+        musicSource.loop = true;
         musicSource.Play();
     }
 
@@ -61,7 +64,7 @@ public class AudioManager : MonoBehaviour
         if (clip == null)
             return;
 
-        sfxSource.PlayOneShot(clip);
+        sfxSource.PlayOneShot(clip, sfxSource.volume);
     }
 
     #endregion
@@ -82,16 +85,8 @@ public class AudioManager : MonoBehaviour
 
         PlayerPrefs.SetFloat(SfxVolumeKey, sfxSource.volume);
         PlayerPrefs.Save();
-    }
 
-    public float GetMusicVolume()
-    {
-        return musicSource.volume;
-    }
-
-    public float GetSfxVolume()
-    {
-        return sfxSource.volume;
+        OnSfxVolumeChanged?.Invoke(sfxSource.volume);
     }
 
     private void LoadVolume()
