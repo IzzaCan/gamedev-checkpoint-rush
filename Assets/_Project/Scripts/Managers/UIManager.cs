@@ -14,6 +14,7 @@ public class UIManager : MonoBehaviour
     [SerializeField] private GameObject pauseButton;
 
     private TimerManager timerManager;
+    private EngineAudio engineAudio;
 
     private bool isPaused;
     private bool tutorialFinished;
@@ -21,28 +22,44 @@ public class UIManager : MonoBehaviour
     private void Awake()
     {
         timerManager = FindFirstObjectByType<TimerManager>();
+        engineAudio = FindFirstObjectByType<EngineAudio>();
+
 
         if (timerManager == null)
             Debug.LogError("TimerManager not found in scene!");
+        
+        if (engineAudio == null)
+            Debug.LogError("EngineAudio not found in scene!");
     }
 
     private void Start()
     {
         HideAllPanels();
 
-        if (tutorialPanel != null)
-        {
-            tutorialPanel.SetActive(true);
-            Time.timeScale = 0f;
-        }
+        bool isLevel1 = SceneManager.GetActiveScene().name == "Level_1";
 
-        // Engine tidak menyala selama tutorial
-        EngineAudio.Instance?.StopEngine();
+        if (isLevel1)
+        {
+            // Tampilkan tutorial hanya di Level 1
+            tutorialPanel?.SetActive(true);
+
+            Time.timeScale = 0f;
+
+            // Engine mati selama tutorial
+            engineAudio?.StopEngine();
+        }
+        else
+        {
+            // Level selain Level 1 langsung mulai
+            tutorialFinished = true;
+
+            Time.timeScale = 1f;
+
+            timerManager?.StartTimer();
+            engineAudio?.StartEngine();
+        }
     }
 
-    //==================================================
-    // Tutorial
-    //==================================================
 
     public void StartGame()
     {
@@ -59,7 +76,7 @@ public class UIManager : MonoBehaviour
         timerManager?.StartTimer();
 
         // Mulai suara mesin
-        EngineAudio.Instance?.StartEngine();
+        engineAudio?.StartEngine();
     }
 
     //==================================================
@@ -78,7 +95,7 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        EngineAudio.Instance?.PauseEngine();
+        engineAudio?.PauseEngine();
     }
 
     public void ResumeGame()
@@ -93,7 +110,7 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 1f;
 
-        EngineAudio.Instance?.ResumeEngine();
+        engineAudio?.ResumeEngine();
     }
 
     //==================================================
@@ -106,7 +123,7 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        EngineAudio.Instance?.StopEngine();
+        engineAudio?.StopEngine();
 
         gameOverPanel?.SetActive(true);
     }
@@ -121,7 +138,7 @@ public class UIManager : MonoBehaviour
 
         Time.timeScale = 0f;
 
-        EngineAudio.Instance?.StopEngine();
+        engineAudio?.StopEngine();
 
         levelCompletePanel?.SetActive(true);
     }
@@ -132,7 +149,7 @@ public class UIManager : MonoBehaviour
 
     public void RestartLevel()
     {
-        EngineAudio.Instance?.StopEngine();
+        engineAudio?.StopEngine();
 
         Time.timeScale = 1f;
 
@@ -141,7 +158,7 @@ public class UIManager : MonoBehaviour
 
     public void Home()
     {
-        EngineAudio.Instance?.StopEngine();
+        engineAudio?.StopEngine();
 
         Time.timeScale = 1f;
 
@@ -150,7 +167,7 @@ public class UIManager : MonoBehaviour
 
     public void NextLevel()
     {
-        EngineAudio.Instance?.StopEngine();
+        engineAudio?.StopEngine();
 
         Time.timeScale = 1f;
 

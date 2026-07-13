@@ -4,7 +4,6 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody))]
 public class EngineAudio : MonoBehaviour
 {
-    public static EngineAudio Instance { get; private set; }
 
     [Header("References")]
     [SerializeField] private AudioSource engineSource;
@@ -27,18 +26,13 @@ public class EngineAudio : MonoBehaviour
 
     private void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(this);
-            return;
-        }
-
-        Instance = this;
-
         rb = GetComponent<Rigidbody>();
 
         if (engineSource == null)
             engineSource = GetComponent<AudioSource>();
+
+        engineSource.loop = true;
+        engineSource.playOnAwake = false;
     }
 
     private void OnEnable()
@@ -55,10 +49,6 @@ public class EngineAudio : MonoBehaviour
     {
         if (AudioManager.Instance != null)
             sfxVolume = AudioManager.Instance.SfxVolume;
-
-        engineSource.loop = true;
-        engineSource.playOnAwake = false;
-        engineSource.Stop();
     }
 
     private void Update()
